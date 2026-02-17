@@ -3,37 +3,80 @@
 namespace App\Services\v1\Auth;
 
 use App\Contracts\v1\Auth\AuthContract;
+use App\Models\User;
+use Hash;
 
 class AuthService implements AuthContract
 {
     /**
      * Create a new class instance.
      */
-    public function login(Request $request)
+    public function login(array $data)
     {
-        return response()->json([
-            'message' => 'Login successful',
-        ], 200);
+        try {
+            $user = User::where('email', $data['email'])->first();
+            if (! $user) {
+                throw new \Exception('User not found');
+            }
+            if (! Hash::check($data['password'], $user->password)) {
+                throw new \Exception('Invalid password');
+            }
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return [
+                'user' => $user,
+                'token' => $token,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
-    public function register(Request $request)
+    public function register(array $data)
     {
-        return response()->json([
-            'message' => 'Register successful',
-        ], 200);
+        try {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return [
+                'user' => $user,
+                'token' => $token,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
-    public function logout(Request $request)
+    public function logout(array $data)
     {
-        return response()->json([
-            'message' => 'Logout successful',
-        ], 200);
+        try {
+            $user = auth()->user();
+            $user->tokens()->delete();
+
+            return [
+                'message' => 'Logout successful',
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
-    public function refresh(Request $request)
+    public function refresh(array $data)
     {
-        return response()->json([
-            'message' => 'Refresh successful',
-        ], 200);
+        try {
+            $user = auth()->user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return [
+                'user' => $user,
+                'token' => $token,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 }
