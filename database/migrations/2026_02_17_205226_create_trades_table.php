@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('base_currency_id')->constrained('currencies');
             $table->foreignId('quote_currency_id')->constrained('currencies');
-            $table->decimal('base_amount', 10, 20);
-            $table->decimal('quote_amount', 10, 20);
-            $table->decimal('price', 10, 20);
-            $table->decimal('fee', 10, 20);
+            $table->decimal('base_amount', 10, 2);
+            $table->decimal('quote_amount', 10, 2);
+            $table->decimal('price', 10, 2);
+            $table->decimal('fee', 10, 2);
             $table->foreignId('fee_currency_id')->constrained('currencies');
             $table->enum('type', ['buy', 'sell']);
             $table->integer('status')->default(1);

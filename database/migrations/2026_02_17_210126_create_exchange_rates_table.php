@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('base_currency_id')->constrained('currencies');
             $table->foreignId('quote_currency_id')->constrained('currencies');
-            $table->decimal('rate', 10, 20);
+            $table->decimal('rate', 36, 18);
             $table->string('source');
             $table->integer('status')->default(1);
             $table->timestamps();

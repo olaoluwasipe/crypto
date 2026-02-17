@@ -3,7 +3,9 @@
 namespace App\Services\v1\Auth;
 
 use App\Contracts\v1\Auth\AuthContract;
+use App\Models\Currency;
 use App\Models\User;
+use App\Models\Wallet;
 use Hash;
 
 class AuthService implements AuthContract
@@ -40,6 +42,16 @@ class AuthService implements AuthContract
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
             ]);
+
+            $currencies = Currency::where('status', 1)->get();
+            foreach ($currencies as $currency) {
+                Wallet::create([
+                    'user_id' => $user->id,
+                    'currency_id' => $currency->id,
+                    'balance' => 0,
+                    'status' => 1,
+                ]);
+            }
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return [

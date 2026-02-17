@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('code');
             $table->integer('precision');
             $table->enum('type', ['crypto', 'fiat']);
-            $table->decimal('min_trade_amount', 10, 2);
+            $table->decimal('min_trade_amount', 36, 18);
+            $table->decimal('max_trade_amount', 36, 18);
             $table->string('logo');
             $table->integer('status')->default(1);
             $table->timestamps();

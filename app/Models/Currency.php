@@ -13,6 +13,7 @@ class Currency extends Model
         'precision',
         'type',
         'min_trade_amount',
+        'max_trade_amount',
         'logo',
         'status',
     ];

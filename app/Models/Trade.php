@@ -22,6 +22,10 @@ class Trade extends Model
         'updated_at',
     ];
 
+    const STATUS_PENDING = 1;
+    const STATUS_COMPLETED = 2;
+    const STATUS_CANCELLED = 3;
+
     public function user()
     {
         return $this->belongsTo(User::class);
