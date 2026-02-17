@@ -11,19 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trades', function (Blueprint $table) {
+        Schema::create('exchange_rates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
             $table->foreignId('base_currency_id')->constrained('currencies');
             $table->foreignId('quote_currency_id')->constrained('currencies');
-            $table->decimal('base_amount', 10, 20);
-            $table->decimal('quote_amount', 10, 20);
-            $table->decimal('price', 10, 20);
-            $table->decimal('fee', 10, 20);
-            $table->foreignId('fee_currency_id')->constrained('currencies');
-            $table->enum('type', ['buy', 'sell']);
+            $table->decimal('rate', 10, 20);
+            $table->string('source');
             $table->integer('status')->default(1);
-            $table->timestamp('executed_at');
             $table->timestamps();
         });
     }
@@ -33,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trades');
+        Schema::dropIfExists('exchange_rates');
     }
 };

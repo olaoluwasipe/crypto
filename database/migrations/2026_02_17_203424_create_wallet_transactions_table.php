@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('description');
             $table->json('metadata');
             $table->integer('status')->default(1);
-            $table->decimal('amount', 10, 20);
+            $table->decimal('amount', 10, 2);
             $table->string('idempotency_key')->unique();
             $table->decimal('prev_balance', 10, 2);
             $table->decimal('new_balance', 10, 2);

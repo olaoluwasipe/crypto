@@ -4,28 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Trade extends Model
+class ExchangeRate extends Model
 {
     protected $fillable = [
-        'user_id',
         'base_currency_id',
         'quote_currency_id',
-        'base_amount',
-        'quote_amount',
-        'price',
-        'fee',
-        'fee_currency_id',
-        'type',
+        'rate',
+        'source',
         'status',
-        'executed_at',
         'created_at',
         'updated_at',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function baseCurrency()
     {
@@ -33,11 +22,6 @@ class Trade extends Model
     }
 
     public function quoteCurrency()
-    {
-        return $this->belongsTo(Currency::class);
-    }
-
-    public function feeCurrency()
     {
         return $this->belongsTo(Currency::class);
     }
