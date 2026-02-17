@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+
+Route::group(['prefix' => 'v1'], function () {
+    Route::get('/', function () {
+        return response()->json([
+            'message' => 'Hello World',
+        ], 200);
+    });
+
+    // Auth routes
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/refresh', [AuthController::class, 'refresh']);
+    });
+});
+
+Route::fallback(function () {
+    return response()->json([
+        'message' => 'Route not found',
+    ], 404);
+});
