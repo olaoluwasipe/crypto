@@ -46,7 +46,9 @@ trait ApiResponses
         ], $status);
     }
 
-    public function paginateResponse($data, $message = 'Success', $status = 200) {
+    public function paginateResponse($data, $message = 'Success', $status = 200, $resource = null) {
+        // If resource is provided, use it to format the data, otherwise use the data directly
+        $formattedData = $resource ? $resource::collection($data->items()) : $data->items();
         $pagination = [
             'total' => $data->total(),
             'per_page' => $data->perPage(),
@@ -58,7 +60,7 @@ trait ApiResponses
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $data->items(),
+            'data' => $formattedData,
             'pagination' => $pagination,
         ], $status);
     }

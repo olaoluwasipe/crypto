@@ -26,6 +26,18 @@ class WalletTransaction extends Model
     const TYPE_DEBIT = 'debit';
     const TYPE_CREDIT = 'credit';
 
+    const STATUS_PENDING = 1;
+    const STATUS_COMPLETED = 2;
+    const STATUS_CANCELLED = 3;
+
+    public function getStatusTextAttribute($value)
+    {
+        return match ($this->status) {
+            self::STATUS_PENDING => 'pending',
+            self::STATUS_COMPLETED => 'completed',
+            self::STATUS_CANCELLED => 'cancelled',
+        };
+    }
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);

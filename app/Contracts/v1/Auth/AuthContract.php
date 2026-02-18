@@ -8,7 +8,7 @@ interface AuthContract
 
     public function register(array $data);
 
-    public function logout(array $data);
+    public function logout();
 
-    public function refresh(array $data);
+    public function refresh();
 }

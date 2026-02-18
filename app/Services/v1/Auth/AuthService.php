@@ -6,6 +6,7 @@ use App\Contracts\v1\Auth\AuthContract;
 use App\Models\Currency;
 use App\Models\User;
 use App\Models\Wallet;
+use Exception;
 use Hash;
 
 class AuthService implements AuthContract
@@ -63,7 +64,7 @@ class AuthService implements AuthContract
         }
     }
 
-    public function logout(array $data)
+    public function logout()
     {
         try {
             $user = auth()->user();
@@ -77,10 +78,13 @@ class AuthService implements AuthContract
         }
     }
 
-    public function refresh(array $data)
+    public function refresh()
     {
         try {
             $user = auth()->user();
+            if (!$user) {
+                throw new Exception("You're not logged in");
+            }
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return [

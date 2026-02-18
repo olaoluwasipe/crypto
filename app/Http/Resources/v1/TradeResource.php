@@ -24,8 +24,8 @@ class TradeResource extends JsonResource
             'quote_currency' => formatCurrency($this->quoteCurrency),
             'debit_transaction' => new WalletTransactionResource($this->debitTransaction),
             'credit_transaction' => new WalletTransactionResource($this->creditTransaction),
-            'executed_at' => $this->executed_at->format('Y-m-d H:i:s'),
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'executed_at' => formatDate($this->executed_at),
+            'created_at' => formatDate($this->created_at),
         ];
     }
 }

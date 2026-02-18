@@ -44,6 +44,14 @@ class Trade extends Model
         };
     }
 
+    public static function getStatusByName ($status) {
+        return match ($status) {
+            'completed' => self::STATUS_COMPLETED,
+            'cancelled' => self::STATUS_CANCELLED,
+            default => self::STATUS_PENDING,
+        };
+    }
+
     public function baseCurrency()
     {
         return $this->belongsTo(Currency::class);

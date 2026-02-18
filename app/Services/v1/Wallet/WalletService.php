@@ -28,7 +28,10 @@ class WalletService implements WalletContract
 
     public function ensureSufficientBalance(Wallet $wallet, $amount)
     {
-        if ($wallet->balance < $amount) {
+        $allDebits = $wallet->transactions()->where('type', 'debit')->sum('amount');
+        $allCredits = $wallet->transactions()->where('type', 'credit')->sum('amount');
+        $balance = $allCredits - $allDebits;
+        if ($balance < $amount) {
             throw new \Exception('Insufficient balance');
         }
         return $wallet;

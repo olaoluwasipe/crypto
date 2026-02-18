@@ -31,6 +31,9 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'trades'], function () {
             Route::post('/buy', [TradeController::class, 'buy']);
             Route::post('/sell', [TradeController::class, 'sell']);
+
+            Route::get('/', [TradeController::class, 'transactions']);
+            Route::get('/{trade:reference}', [TradeController::class, 'show']);
         });
     });
 });
