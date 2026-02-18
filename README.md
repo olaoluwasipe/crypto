@@ -168,7 +168,7 @@ After seeding, you can use:
 
 ## API Documentation
 
-See [API.md](API.md) for detailed API documentation with request/response examples.
+See [Crypto.postman_collection.json](Crypto.postman_collection.json) for detailed API documentation with request/response examples.
 
 ## Fee System
 
