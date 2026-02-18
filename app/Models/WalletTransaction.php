@@ -24,10 +24,13 @@ class WalletTransaction extends Model
     ];
 
     const TYPE_DEBIT = 'debit';
+
     const TYPE_CREDIT = 'credit';
 
     const STATUS_PENDING = 1;
+
     const STATUS_COMPLETED = 2;
+
     const STATUS_CANCELLED = 3;
 
     public function getStatusTextAttribute($value)
@@ -36,8 +39,20 @@ class WalletTransaction extends Model
             self::STATUS_PENDING => 'pending',
             self::STATUS_COMPLETED => 'completed',
             self::STATUS_CANCELLED => 'cancelled',
+            default => 'pending',
         };
     }
+
+    public static function getStatusByName($status)
+    {
+        return match ($status) {
+            'pending' => self::STATUS_PENDING,
+            'completed' => self::STATUS_COMPLETED,
+            'cancelled' => self::STATUS_CANCELLED,
+            default => self::STATUS_PENDING,
+        };
+    }
+
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
@@ -46,5 +61,10 @@ class WalletTransaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function trade()
+    {
+        return $this->hasOne(Trade::class);
     }
 }

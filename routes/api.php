@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\TradeController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
@@ -24,9 +25,11 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
+        Route::post('/add-money', [WalletController::class, 'addMoney']);
         Route::get('/currencies', [CurrencyController::class, 'index']);
         Route::get('/exchange-rates', [CurrencyController::class, 'exchangeRates']);
         Route::post('/convert-currency', [CurrencyController::class, 'convertCurrency']);
+        Route::get('/transactions', [WalletController::class, 'transactions']);
 
         Route::group(['prefix' => 'trades'], function () {
             Route::post('/buy', [TradeController::class, 'buy']);
