@@ -23,6 +23,7 @@ class BuyTradeRequest extends BaseRequest
     {
         return [
             'amount' => 'required|numeric|min:0',
+            'wallet' => 'required|string|exists:currencies,symbol',
             'currency' => 'required|string|exists:currencies,symbol',
         ];
     }
@@ -33,6 +34,9 @@ class BuyTradeRequest extends BaseRequest
             'amount.required' => 'Amount is required',
             'amount.numeric' => 'Amount must be a number',
             'amount.min' => 'Amount must be greater than 0',
+            'wallet.required' => 'Wallet is required',
+            'wallet.string' => 'Wallet must be a string',
+            'wallet.exists' => 'Wallet does not exist on this platform',
             'currency.required' => 'Currency is required',
             'currency.string' => 'Currency must be a string',
             'currency.exists' => 'Currency does not exist on this platform',

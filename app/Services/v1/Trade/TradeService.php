@@ -10,6 +10,7 @@ use App\Models\Currency;
 use App\Models\Trade;
 use App\Models\User;
 use DB;
+use Illuminate\Support\Str;
 
 class TradeService implements TradeContract
 {
@@ -30,32 +31,50 @@ class TradeService implements TradeContract
         try {
             $user = auth()->user();
             $amount = $data['amount'];
-            $currency = Currency::where('symbol', $data['currency'])->firstOrFail();
+            $baseCurrency = Currency::where('symbol', $data['wallet'])->firstOrFail();
+            $quoteCurrency = Currency::where('symbol', $data['currency'])->firstOrFail();
             // Check if amount is less than min trade amount
-            if ($amount < $currency->min_trade_amount) {
-                throw new \Exception('Amount is less than '.$currency->min_trade_amount.' '.$currency->symbol);
+            if ($amount < $quoteCurrency->min_trade_amount) {
+                throw new \Exception('Amount is less than '.$quoteCurrency->min_trade_amount.' '.$quoteCurrency->symbol);
             }
             // Check if amount is greater than max trade amount
-            if ($amount > $currency->max_trade_amount) {
-                throw new \Exception('Amount is greater than '.$currency->max_trade_amount.' '.$currency->symbol);
+            if ($amount > $quoteCurrency->max_trade_amount) {
+                throw new \Exception('Amount is greater than '.$quoteCurrency->max_trade_amount.' '.$quoteCurrency->symbol);
             }
-            DB::transaction(function () use ($user, $amount, $currency) {
+            return DB::transaction(function () use ($user, $amount, $baseCurrency, $quoteCurrency) {
 
-                $wallet = $this->walletService->lockWallet($user, $currency);
-            
-                $this->walletService->ensureSufficientBalance($wallet, $amount);
-            
-                $cryptoAmount = $this->currencyService->convert($wallet->currency, $currency, $amount);
-            
-                $fee = $this->feeService->calculateBuyFee($currency, $amount);
-            
-                $this->walletService->debit($wallet, $amount + $fee, $user);
-            
-                $this->walletService->credit($wallet, $cryptoAmount, $user);
-            
-                $this->recordTrade($user, $wallet->currency, $currency, $amount, $cryptoAmount, $fee, $currency, 'buy');
+                $wallet = $this->walletService->lockWallet($user, $baseCurrency);
+                $quoteWallet = $this->walletService->lockWallet($user, $quoteCurrency);
 
-                return true; // Successfully executed the trade
+                $rate = $this->currencyService->getRate($baseCurrency, $quoteCurrency);
+            
+                $cryptoAmount = $this->currencyService->convert($wallet->currency, $quoteCurrency, $amount);
+            
+                $fee = $this->feeService->calculateBuyFee($quoteCurrency, $cryptoAmount);
+            
+                $this->walletService->ensureSufficientBalance($wallet, $cryptoAmount + $fee);
+
+                $totalAmount = $cryptoAmount + $fee;
+            
+                $debitTransaction = $this->walletService->debit($wallet, $totalAmount, $user);
+            
+                $creditTransaction = $this->walletService->credit($quoteWallet, $amount, $user);
+            
+                $transaction = $this->recordTrade(
+                    $user, 
+                $wallet->currency, 
+                $quoteCurrency, 
+                $amount, 
+                $cryptoAmount, 
+                $fee, 
+                $quoteCurrency, 
+                'buy', 
+                $rate, 
+                $totalAmount, 
+                $creditTransaction, 
+                $debitTransaction);
+
+                return $transaction; // Successfully executed the trade
             });
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -73,20 +92,37 @@ class TradeService implements TradeContract
         }
     }
 
-    public function recordTrade(User $user, Currency $baseCurrency, Currency $quoteCurrency, $amount, $cryptoAmount, $fee, $feeCurrency, $type)
+    public function recordTrade(User $user, 
+            Currency $baseCurrency, 
+            Currency $quoteCurrency, 
+            $amount, 
+            $cryptoAmount, 
+            $fee, 
+            $feeCurrency, 
+            $type, 
+            $rate, 
+            $totalAmount, 
+            $creditTransaction, 
+            $debitTransaction
+    )
     {
         $trade = Trade::create([
             'user_id' => $user->id,
+            'reference' => Str::uuid(),
             'base_currency_id' => $baseCurrency->id,
             'quote_currency_id' => $quoteCurrency->id,
-            'base_amount' => $amount,
-            'quote_amount' => $cryptoAmount,
-            'price',
+            'base_amount' => $cryptoAmount,
+            'quote_amount' => $amount,
+            'price' => $totalAmount,
             'fee' => $fee,
+            'rate' => $rate->rate,
+            'credit_transaction_id' => $creditTransaction->id,
+            'debit_transaction_id' => $debitTransaction->id,
             'fee_currency_id' => $feeCurrency->id,
             'type' => $type,
             'status' => Trade::STATUS_PENDING,
             'executed_at' => now(),
         ]);
+        return $trade;
     }
 }

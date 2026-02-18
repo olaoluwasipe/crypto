@@ -19,6 +19,13 @@ class WalletTransaction extends Model
         'new_balance',
     ];
 
+    protected $casts = [
+        'metadata' => 'array',
+    ];
+
+    const TYPE_DEBIT = 'debit';
+    const TYPE_CREDIT = 'credit';
+
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);

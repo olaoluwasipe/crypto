@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Currency;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
+use Illuminate\Support\Str;
 
 class WalletService implements WalletContract
 {
@@ -35,30 +36,42 @@ class WalletService implements WalletContract
 
     public function debit(Wallet $wallet, $amount, User $user)
     {
+        $prevBalance = $wallet->balance;
         $wallet->decrement('balance', $amount);
-        $this->recordTransaction($wallet, $amount, 'debit', 'Debit wallet', [
+        $transaction = $this->recordTransaction($wallet, $amount, 'debit', 'Debit wallet', [
             'user_id' => $user->id,
-        ]);
-        return $wallet;
+        ], $prevBalance);
+        return $transaction;
     }
     
     public function credit(Wallet $wallet, $amount, User $user)
     {
+        $prevBalance = $wallet->balance;
         $wallet->increment('balance', $amount);
-        $this->recordTransaction($wallet, $amount, 'credit', 'Credit wallet', [
+        $transaction = $this->recordTransaction($wallet, $amount, 'credit', 'Credit wallet', [
             'user_id' => $user->id,
-        ]);
-        return $wallet;
+        ], $prevBalance);
+        return $transaction;
+    }
+
+    private function generateReference($type) {
+        $type = $type == WalletTransaction::TYPE_DEBIT ? 'DR' : 'CR';
+        return $type . '-' . Str::random(10);
     }
     
-    public function recordTransaction(Wallet $wallet, $amount, $type, $description, $metadata)
+    public function recordTransaction(Wallet $wallet, $amount, $type, $description, $metadata = [], $prevBalance = null, $reference = null)
     {
+        $reference ??= $this->generateReference($type);
         $transaction = WalletTransaction::create([
             'wallet_id' => $wallet->id,
             'type' => $type,
+            'reference' => $reference,
             'description' => $description,
             'metadata' => $metadata,
             'amount' => $amount,
+            'idempotency_key' => Str::uuid(),
+            'prev_balance' => $prevBalance ?? $wallet->balance,
+            'new_balance' => $wallet->balance,
         ]);
         return $transaction;
     }

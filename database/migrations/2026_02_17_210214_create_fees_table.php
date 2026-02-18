@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('type');
             $table->foreignId('currency_id')->constrained('currencies');
-            $table->decimal('amount', 10, 2);
-            $table->decimal('percentage', 10, 2)->nullable();
-            $table->decimal('fixed_amount', 10, 2)->nullable();
-            $table->decimal('min_amount', 10, 2)->nullable();
-            $table->decimal('max_amount', 10, 2)->nullable();
+            $table->decimal('amount', 36, 18);
+            $table->decimal('percentage', 36, 18)->nullable();
+            $table->decimal('fixed_amount', 36, 18)->nullable();
+            $table->decimal('min_amount', 36, 18)->nullable();
+            $table->decimal('max_amount', 36, 18)->nullable();
             $table->integer('status')->default(1);
             $table->timestamps();
         });

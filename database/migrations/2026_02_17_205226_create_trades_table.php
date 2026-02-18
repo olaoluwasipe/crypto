@@ -14,16 +14,20 @@ return new class extends Migration
         Schema::create('trades', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
+            $table->string('reference')->unique();
             $table->foreignId('base_currency_id')->constrained('currencies');
             $table->foreignId('quote_currency_id')->constrained('currencies');
-            $table->decimal('base_amount', 10, 2);
-            $table->decimal('quote_amount', 10, 2);
-            $table->decimal('price', 10, 2);
-            $table->decimal('fee', 10, 2);
+            $table->decimal('base_amount', 36, 18);
+            $table->decimal('quote_amount', 36, 18);
+            $table->decimal('price', 36, 18);
+            $table->decimal('fee', 36, 18);
+            $table->decimal('rate', 36, 18);
             $table->foreignId('fee_currency_id')->constrained('currencies');
-            $table->enum('type', ['buy', 'sell']);
-            $table->integer('status')->default(1);
-            $table->timestamp('executed_at');
+            $table->enum('type', ['buy', 'sell'])->index();
+            $table->integer('status')->default(1)->index();
+            $table->timestamp('executed_at')->index();
+            $table->foreignId('credit_transaction_id')->constrained('wallet_transactions');
+            $table->foreignId('debit_transaction_id')->constrained('wallet_transactions');
             $table->timestamps();
         });
     }

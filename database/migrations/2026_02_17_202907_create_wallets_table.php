@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('currency_id')->constrained('currencies');
-            $table->decimal('balance', 10, 2);
+            $table->decimal('balance', 36, 18);
             $table->boolean('status')->default(true);
             $table->timestamps();
         });
