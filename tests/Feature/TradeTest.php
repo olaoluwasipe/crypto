@@ -5,6 +5,7 @@ use App\Models\ExchangeRate;
 use App\Models\Trade;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Models\WalletTransaction;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -40,11 +41,18 @@ beforeEach(function () {
     // Create wallets for the user
     $currencies = Currency::where('status', 1)->get();
     foreach ($currencies as $currency) {
-        Wallet::firstOrCreate([
+        $wallet = Wallet::firstOrCreate([
             'user_id' => $this->user->id,
             'currency_id' => $currency->id,
         ], [
-            'balance' => 1000000,
+            'balance' => 100000000,
+            'status' => 1,
+        ]);
+
+        WalletTransaction::factory()->create([
+            'wallet_id' => $wallet->id,
+            'amount' => 1000000000,
+            'type' => WalletTransaction::TYPE_CREDIT,
             'status' => 1,
         ]);
     }
@@ -58,7 +66,9 @@ beforeEach(function () {
             'base_currency_id' => $baseCurrency->id,
             'quote_currency_id' => $quoteCurrency->id,
         ], [
-            'rate' => 0.0000001,
+            'rate' => 1500,
+            'source' => 'test',
+            'status' => 1,
         ]);
     }
 });
@@ -66,7 +76,7 @@ beforeEach(function () {
 test('authenticated user can buy cryptocurrency', function () {
     $response = $this->withHeader('Authorization', "Bearer {$this->token}")
         ->postJson('/api/v1/trades/buy', [
-            'amount' => 1000,
+            'amount' => 10,
             'wallet' => 'ngn',
             'currency' => 'btc',
         ]);
@@ -76,8 +86,15 @@ test('authenticated user can buy cryptocurrency', function () {
             'success',
             'message',
             'data' => [
-                'id',
                 'reference',
+                'type',
+                'status',
+                'amount_paid',
+                'rate',
+                'base_currency',
+                'quote_currency',
+                'debit_transaction',
+                'credit_transaction',
             ],
         ])
         ->assertJson([
@@ -131,7 +148,7 @@ test('user cannot buy with negative amount', function () {
 test('authenticated user can sell cryptocurrency', function () {
     $response = $this->withHeader('Authorization', "Bearer {$this->token}")
         ->postJson('/api/v1/trades/sell', [
-            'amount' => 0.001,
+            'amount' => 1,
             'wallet' => 'btc',
         ]);
 
@@ -140,8 +157,15 @@ test('authenticated user can sell cryptocurrency', function () {
             'success',
             'message',
             'data' => [
-                'id',
                 'reference',
+                'type',
+                'status',
+                'amount_paid',
+                'rate',
+                'base_currency',
+                'quote_currency',
+                'debit_transaction',
+                'credit_transaction',
             ],
         ])
         ->assertJson([
@@ -209,7 +233,6 @@ test('authenticated user can get a specific trade by reference', function () {
             'success',
             'message',
             'data' => [
-                'id',
                 'reference',
             ],
         ])

@@ -148,8 +148,12 @@ class TradeService implements TradeContract
 
     public function show(Trade $trade)
     {
+        if ($trade->user_id !== auth()->user()->id) {
+            throw new \Exception('You are not authorized to view this trade');
+        }
         return $trade;
     }
+    
     private function validateTradeAmount(Currency $currency, $amount): void
     {
         if ($amount < $currency->min_trade_amount) {

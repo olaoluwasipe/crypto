@@ -7,7 +7,6 @@ use App\Contracts\v1\Auth\AuthContract;
 use App\Http\Requests\v1\Auth\LoginRequest;
 use App\Http\Requests\v1\Auth\RegisterRequest;
 use App\Http\Resources\v1\UserResource;
-use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -28,7 +27,7 @@ class AuthController extends Controller
 
             return $this->successResponse(
                 [
-                    'user' => new UserResource($response['user']), 
+                    'user' => new UserResource($response['user']),
                     'token' => $response['token'],
                 ],
                 'Login successful');
@@ -45,7 +44,7 @@ class AuthController extends Controller
 
             return $this->successResponse(
                 [
-                    'user' => new UserResource($response['user']), 
+                    'user' => new UserResource($response['user']),
                     'token' => $response['token'],
                 ],
                 'Register successful');
@@ -58,9 +57,10 @@ class AuthController extends Controller
     {
         try {
             $user = auth()->user();
+
             return $this->successResponse(
                 [
-                    'user' => new UserResource($user), 
+                    'user' => new UserResource($user),
                 ],
                 'User retrieved successfully');
         } catch (\Exception $e) {
@@ -84,7 +84,9 @@ class AuthController extends Controller
         try {
             $response = $this->authService->refresh();
 
-            return $this->successResponse($response, 'Refresh successful');
+            return $this->successResponse([
+                'token' => $response['token'],
+            ], 'Refresh successful');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }

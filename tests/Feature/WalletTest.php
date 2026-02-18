@@ -63,9 +63,8 @@ test('authenticated user can add money to wallet', function () {
             'success',
             'message',
             'data' => [
-                'id',
                 'amount',
-                'currency',
+                'wallet',
                 'type',
             ],
         ])

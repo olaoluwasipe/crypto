@@ -22,8 +22,8 @@ class ConvertCurrencyRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'base_currency' => 'required|string',
-            'quote_currency' => 'required|string',
+            'base_currency' => 'required|string|exists:currencies,symbol',
+            'quote_currency' => 'required|string|exists:currencies,symbol',
             'amount' => 'required|numeric',
         ];
     }
@@ -33,8 +33,10 @@ class ConvertCurrencyRequest extends BaseRequest
         return [
             'base_currency.required' => 'Base currency is required',
             'base_currency.string' => 'Base currency must be a string',
+            'base_currency.exists' => 'Base currency does not exist on this platform',
             'quote_currency.required' => 'Quote currency is required',
             'quote_currency.string' => 'Quote currency must be a string',
+            'quote_currency.exists' => 'Quote currency does not exist on this platform',
             'amount.required' => 'Amount is required',
             'amount.numeric' => 'Amount must be a number',
         ];

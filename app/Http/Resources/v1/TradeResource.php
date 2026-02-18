@@ -14,11 +14,12 @@ class TradeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $currency = $this->type === 'buy' ? $this->baseCurrency : $this->quoteCurrency;
         return [
             'reference' => $this->reference,
             'type' => $this->type,
             'status' => $this->status_text,
-            'amount_paid' => formatMoney($this->price, $this->baseCurrency),
+            'amount_paid' => formatMoney($this->price, $currency),
             'rate' => formatMoney($this->rate, $this->baseCurrency) . ' per ' . formatMoney(1, $this->quoteCurrency),
             'base_currency' => formatCurrency($this->baseCurrency),
             'quote_currency' => formatCurrency($this->quoteCurrency),

@@ -23,7 +23,7 @@ class LoginRequest extends BaseRequest
     {
         return [
             'email' => 'required|email|exists:users,email',
-            'password' => 'required|string|min:8|max:255|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
+            'password' => 'required|string|min:8|max:255',
         ];
     }
 

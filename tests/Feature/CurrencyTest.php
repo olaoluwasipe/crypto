@@ -102,6 +102,7 @@ test('authenticated user can get exchange rates', function () {
             'quote_currency_id' => $quoteCurrency->id,
         ], [
             'rate' => 1500.00,
+            'source' => 'test',
         ]);
     }
 
@@ -136,6 +137,7 @@ test('authenticated user can convert currency', function () {
             'quote_currency_id' => $quoteCurrency->id,
         ], [
             'rate' => 1500.00,
+            'source' => 'test',
         ]);
     }
 

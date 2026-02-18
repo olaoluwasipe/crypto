@@ -21,7 +21,6 @@ test('user can register with valid data', function () {
             'message',
             'data' => [
                 'user' => [
-                    'id',
                     'name',
                     'email',
                 ],
@@ -116,7 +115,6 @@ test('user can login with valid credentials', function () {
             'message',
             'data' => [
                 'user' => [
-                    'id',
                     'name',
                     'email',
                 ],
@@ -149,9 +147,10 @@ test('user cannot login with invalid password', function () {
 
     $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'test@example.com',
-        'password' => 'WrongPassword123!@#',
+        'password' => 'WrongPass123!@#', // Valid format but wrong password
     ]);
 
+    // The service throws an exception which returns 400
     $response->assertStatus(400)
         ->assertJson([
             'success' => false,
@@ -160,6 +159,18 @@ test('user cannot login with invalid password', function () {
 
 test('authenticated user can get their profile', function () {
     $user = User::factory()->create();
+
+    // Create wallets for the user (UserResource includes wallets)
+    $currencies = \App\Models\Currency::where('status', 1)->get();
+    foreach ($currencies as $currency) {
+        \App\Models\Wallet::create([
+            'user_id' => $user->id,
+            'currency_id' => $currency->id,
+            'balance' => 0,
+            'status' => 1,
+        ]);
+    }
+
     $token = $user->createToken('auth_token')->plainTextToken;
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -171,7 +182,6 @@ test('authenticated user can get their profile', function () {
             'message',
             'data' => [
                 'user' => [
-                    'id',
                     'name',
                     'email',
                 ],
